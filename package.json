@@ -3,20 +3,27 @@
   "version": "1.0.0",
   "description": "A NodeJS wrapper to the Stanford NER library",
   "engines": {
-    "node": "4.4.5"
+    "node": ">= 8"
   },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository" :
-  { "type" : "git", "url" : "https://github.com/vchatterji/stanford-ner" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sdacunha/stanford-ner"
+  },
   "author": "Varun Chatterji",
   "license": "GNU General Public License, version 2",
   "dependencies": {
-    "lodash": "^4.13.1",
-    "natural": "^0.4.0",
-    "node-uuid": "^1.4.7"
+    "lodash": "^4.17.20",
+    "natural": "^2.1.5",
+    "node-uuid": "^1.4.8"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.165",
+    "@types/natural": "^2.1.1",
+    "@types/node-uuid": "^0.0.28"
   }
 }

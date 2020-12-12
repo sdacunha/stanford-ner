@@ -37,7 +37,7 @@ export class NER {
      */
     private options: NEROptions = {
         //This script compiles to ./dist/src hence ../../stanford-ner-2015-12-09
-        installPath: path.join(__dirname, "../../stanford-ner-2015-12-09"),
+        installPath: path.join(__dirname, "../../stanford-ner-2020-11-17"),
         jar: "stanford-ner.jar",
         classifier: "english.all.3class.distsim.crf.ser.gz"
     };
