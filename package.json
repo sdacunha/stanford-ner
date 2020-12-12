@@ -1,13 +1,14 @@
 {
-  "name": "stanford-ner",
+  "name": "@sdacunha/stanford-ner",
   "version": "1.0.0",
+  "private": true,
   "description": "A NodeJS wrapper to the Stanford NER library",
   "engines": {
     "node": ">= 8"
   },
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
   "scripts": {
+    "build": "rm -rf dist && tsc && cat ./package.json | grep -v '\"private\":' > dist/package.json",
+    "prepare": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
