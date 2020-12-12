@@ -45,7 +45,7 @@ export class NER {
     /**
      * The child process through which we will interact with the underlying NER implementation
      */
-    private childProcess: childProcess.ChildProcess;
+    private childProcess: childProcess.ChildProcess | undefined;
 
     /**
      * Checks that all paths to the required files can be resolved
@@ -82,20 +82,20 @@ export class NER {
             ]
         );
 
-        this.childProcess.stdout.setEncoding("utf8");
+        this.childProcess?.stdout?.setEncoding("utf8");
     
         /**
          * Kill the child process on Control + C
          */
         process.on('SIGINT', () => {
-            this.childProcess.kill();
+            this.childProcess?.kill();
         });
 
         /**
          * Kill the child process on SIGTERM
          */
         process.on('SIGTERM', () => {
-            this.childProcess.kill();
+            this.childProcess?.kill();
         });
     }
 
@@ -150,45 +150,55 @@ export class NER {
         // Now we extract the neighbors into one entity
         const entities: Map<string, string[]> = new Map<string, string[]>();
         const l = tagged.length;
-        let prevEntity: string = undefined;
+        let prevEntity: string | undefined = undefined;
         let entityBuffer: string[] = [];
         for (let i = 0; i < l; i++) {
-            if (tagged[i].t != 'O') {
-                if (tagged[i].t != prevEntity) {
+            if (tagged[i]?.t != 'O') {
+                if (tagged[i]?.t != prevEntity) {
                     // New tag!
                     // Was there a buffer?
                     if (entityBuffer.length > 0) {
                         // There was! We save the entity
-                        if (!entities.get(prevEntity)) {
+                        if (prevEntity && !entities.get(prevEntity)) {
                             entities.set(prevEntity, []);
                         }
-                        entities.get(prevEntity).push(entityBuffer.join(' '));
+                        if (prevEntity) {
+                            entities.get(prevEntity)?.push(entityBuffer.join(' '));
+                        }
                         // Now we set the buffer
                         entityBuffer = [];
                     }
                     // Push to the buffer
-                    entityBuffer.push(tagged[i].w);
+                    const value = tagged[i]?.w;
+                    if (value) {
+                        entityBuffer.push(value);
+                    }
                 } else {
                     // Prev entity is same a current one. We push to the buffer.
-                    entityBuffer.push(tagged[i].w);
+                    const value = tagged[i]?.w;
+                    if (value) {
+                        entityBuffer.push(value);
+                    }
                 }
             } else {
                 if (entityBuffer.length>0) {
                     // There was! We save the entity
-                    if (!entities.get(prevEntity)) {
+                    if (prevEntity && !entities.get(prevEntity)) {
                         entities.set(prevEntity, []);
                     }
-                    entities.get(prevEntity).push(entityBuffer.join(' '));
+                    if (prevEntity) {
+                        entities.get(prevEntity)?.push(entityBuffer.join(' '));
+                    }
                     // Now we set the buffer
                     entityBuffer = [];
                 }
             }
             // Save the current entity
-            prevEntity = tagged[i].t;
+            prevEntity = tagged[i]?.t;
         }
         
         //If entity buffer is not empty, then add the last entries
-        if(entityBuffer.length) {
+        if(entityBuffer.length && prevEntity) {
             entities.set(prevEntity, entityBuffer);
         }
         return entities;
@@ -265,7 +275,7 @@ export class NER {
         let numTokens = this.getTokenCount(text);
         
         const result: Map<string, string[]>[] = []
-        this.childProcess.stdout.on("data", (data: string) => {
+        this.childProcess?.stdout?.on("data", (data: string) => {
             data = data.trim();
             const sentences = data.split("\n");
             sentences.forEach((sentence) => {
@@ -274,12 +284,14 @@ export class NER {
                 result.push(parsed);
                 
                 if(numTokens <= 0) {
-                    this.childProcess.stdout.removeAllListeners();
+                    this.childProcess?.stdout?.removeAllListeners();
                     this.isBusy = false;
                     resolve(result);
                     if(this.queue.length) {
                         const nextEvent = this.queue.shift();
-                        this.finishedEmitter.emit(nextEvent);
+                        if (nextEvent) {
+                            this.finishedEmitter.emit(nextEvent);
+                        }
                     }
                 }
             });
@@ -290,7 +302,7 @@ export class NER {
 
         //Then add one last one
         text += "\n"
-        this.childProcess.stdin.write(text);
+        this.childProcess?.stdin?.write(text);
     }
 
     /**
@@ -319,6 +331,6 @@ export class NER {
      * Kills the Java process
      */
     public exit(): void {
-        this.childProcess.kill();
+        this.childProcess?.kill();
     }
 }
